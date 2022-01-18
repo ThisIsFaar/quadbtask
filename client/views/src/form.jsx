@@ -1,94 +1,126 @@
+import React, { useState } from "react";
+import { insertData } from "./helper/insertdata";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
+import Nav from "./NavBar";
+
 const Form = () => {
+  const [values, setValues] = useState({
+    user_name: "",
+    user_email: "",
+    user_password: "",
+    total_orders: "",
+    user_image: "",
+  });
+
+  const { user_name, user_email, user_password, user_image, total_orders } =
+    values;
+
+  const onSubmit = (event) => {
+    event.preventDefault();
+    setValues({ ...values });
+
+    const formData = new FormData();
+
+    formData.append("user_name", user_name);
+    formData.append("user_email", user_email);
+    formData.append("user_password", user_password);
+    formData.append("total_orders", total_orders);
+    formData.append("user_image", user_image);
+    insertData(formData).then((data) => {
+      if (data.error === "no err") {
+        toast.success("Inserted User Successfully");
+        setValues({
+          ...values,
+          user_name: "",
+          user_email: "",
+          user_password: "",
+          total_orders: "",
+          user_image: "",
+        });
+      } else {
+        toast.error(`${data.error}`);
+      }
+    });
+  };
+
+  const handleChange = (name) => (event) => {
+    const value =
+      name === "user_image" ? event.target.files[0] : event.target.value;
+    setValues({ ...values, [name]: value });
+  };
+
   return (
-    <form>
-      <div className="form-row">
-        <div className=" mb-3 ">
-          <label htmlFor="validationServer01">UserName</label>
-          <input
-            type="text"
-            className="form-control is-valid"
-            id="validationServer01"
-            required
-          />
-          <div className="valid-feedback">Looks good!</div>
-        </div>
-        <div className=" mb-3">
-          <label htmlFor="validationServer02">Email</label>
-          <input
-            type="email"
-            className="form-control is-valid"
-            id="validationServer02"
-            required
-          />
-          <div className="valid-feedback">Looks good!</div>
-        </div>
+    <React.Fragment>
+      <Nav />
+      <div id="main">
+        <form method="POST" encType="multipart/form-data">
+          <div className="form-row">
+            <div className=" mb-3 ">
+              <label>UserName</label>
+              <input
+                onChange={handleChange("user_name")}
+                value={user_name}
+                type="text"
+                name="user_name"
+                className="form-control"
+                required
+              />
+            </div>
+            <div className=" mb-3">
+              <label>Email</label>
+              <input
+                onChange={handleChange("user_email")}
+                value={user_email}
+                type="email"
+                name="user_email"
+                className="form-control"
+                required
+              />
+            </div>
+            <div className=" mb-3">
+              <label>Password</label>
+              <input
+                onChange={handleChange("user_password")}
+                value={user_password}
+                type="password"
+                name="user_password"
+                className="form-control"
+                required
+              />
+            </div>
+            <div className=" mb-3">
+              <label>TotalOrders</label>
+              <input
+                onChange={handleChange("total_orders")}
+                value={total_orders}
+                type="text"
+                name="total_orders"
+                className="form-control"
+                required
+              />
+            </div>
+            <div className=" mb-3">
+              <label>UserImage</label>
+              <input
+                onChange={handleChange("user_image")}
+                name="user_image"
+                type="file"
+                accept="image"
+                className="form-control"
+                placeholder="choose a file"
+                required
+              />
+            </div>
+          </div>
+          <button className="btn btn-primary" onClick={onSubmit} type="submit">
+            Submit form
+          </button>
+        </form>
       </div>
-      <div className="form-row">
-        <div className=" mb-3">
-          <label htmlFor="validationServer03">City</label>
-          <input
-            type="text"
-            className="form-control is-invalid"
-            id="validationServer03"
-            aria-describedby="validationServer03Feedback"
-            required
-          />
-          <div id="validationServer03Feedback" className="invalid-feedback">
-            Please provide a valid city.
-          </div>
-        </div>
-        <div className=" mb-3">
-          <label htmlFor="validationServer04">State</label>
-          <select
-            className="custom-select is-invalid"
-            id="validationServer04"
-            aria-describedby="validationServer04Feedback"
-            required
-          >
-            <option selected disabled value="">
-              Choose...
-            </option>
-            <option>...</option>
-          </select>
-          <div id="validationServer04Feedback" className="invalid-feedback">
-            Please select a valid state.
-          </div>
-        </div>
-        <div className=" mb-3">
-          <label htmlFor="validationServer05">Zip</label>
-          <input
-            type="text"
-            className="form-control is-invalid"
-            id="validationServer05"
-            aria-describedby="validationServer05Feedback"
-            required
-          />
-          <div id="validationServer05Feedback" className="invalid-feedback">
-            Please provide a valid zip.
-          </div>
-        </div>
-      </div>
-      <div className="form-group">
-        <div className="form-check">
-          <input
-            className="form-check-input is-invalid"
-            type="checkbox"
-            id="invalidCheck3"
-            aria-describedby="invalidCheck3Feedback"
-            required
-          />
-          <label className="form-check-label" htmlFor="invalidCheck3">
-            Agree to terms and conditions
-          </label>
-          <div id="invalidCheck3Feedback" className="invalid-feedback">
-            You must agree before submitting.
-          </div>
-        </div>
-      </div>
-      <button className="btn btn-primary" type="submit">
-        Submit form
-      </button>
-    </form>
+      <ToastContainer />
+    </React.Fragment>
   );
 };
 

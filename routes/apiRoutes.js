@@ -5,11 +5,13 @@ const userCtrl = require("../controllers/userController");
 //insert
 router.post("/insert", userCtrl.upload, userCtrl.addUser);
 
-//details
+//details for particular user
 router.get("/details/:id", userCtrl.getUser);
 
+//details (fetch all user)
+router.get("/fetchall", userCtrl.getAllUser);
 //update
-router.put("/update/:id", userCtrl.updateUser);
+router.put("/update/:id", userCtrl.upload, userCtrl.updateUser);
 
 //delete
 router.delete("/delete/:id", userCtrl.deleteUser);

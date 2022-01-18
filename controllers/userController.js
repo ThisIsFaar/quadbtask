@@ -29,31 +29,6 @@ const upload = multer({
   },
 }).single("user_image");
 
-//insert user
-const addUser = async (req, res) => {
-  const result = validateUser(req.body);
-  if (result.error) {
-    res.status(400).send(result.error.details[0].message);
-    return;
-  }
-  try {
-    let data = await Users.create({
-      user_name: req.body.user_name,
-      user_email: req.body.user_email,
-      user_password: req.body.password,
-      user_image: req.file.path,
-      total_orders: req.body.total_orders,
-    });
-    //   await data.save();
-    let response = {
-      data: "Inserted successfully",
-    };
-    res.status(200).json(response);
-  } catch (err) {
-    res.status(404).send("error: " + err);
-  }
-};
-
 //get user
 const getUser = async (req, res) => {
   Users.findAll().then((data) => {
@@ -63,11 +38,55 @@ const getUser = async (req, res) => {
   });
 };
 
+//get all user
+const getAllUser = async (req, res) => {
+  Users.findAll().then((data) => {
+    res.status(200).send(data);
+    return data;
+  });
+};
+
+//insert user
+const addUser = async (req, res) => {
+  const result = validateUser(req.body);
+  if (result.error) {
+    res.status(405).json({
+      error: `${result.error.details[0].message}`,
+    });
+    return;
+  }
+  try {
+    let data = await Users.create({
+      user_name: req.body.user_name,
+      user_email: req.body.user_email,
+      user_password: req.body.user_password,
+      user_image: req.file.path,
+      total_orders: req.body.total_orders,
+    });
+    let response = {
+      data: "Inserted successfully",
+    };
+    res.status(200).json({
+      error: "no err",
+    });
+  } catch (err) {
+    let errMsg = "";
+    if (err.parent.code === "ER_DUP_ENTRY") {
+      errMsg = "Already registered email, provide unique one!";
+    } else {
+      errMsg = "Error in your filled data!";
+    }
+    res.status(404).json({
+      error: `${errMsg}`,
+    });
+  }
+};
+
 //update user
 const updateUser = async (req, res) => {
   const result = validateUser(req.body);
   if (result.error) {
-    res.status(400).send(result.error.details[0].message);
+    res.status(405).send(result.error.details[0].message);
     return;
   }
   try {
@@ -75,8 +94,9 @@ const updateUser = async (req, res) => {
       {
         user_name: req.body.user_name,
         user_email: req.body.user_email,
-        user_password: req.body.password,
+        user_password: req.file.user_image,
         total_orders: req.body.total_orders,
+        user_image: req.file.path,
       },
       {
         where: {
@@ -87,7 +107,7 @@ const updateUser = async (req, res) => {
     let response = {
       data: "Updated successfully",
     };
-    res.status(200).json(response);
+    res.status(200).json(response).send("updated succesfully");
   } catch (err) {
     res.status(404).send("error: " + err);
   }
@@ -124,12 +144,21 @@ const getImage = async (req, res) => {
 function validateUser(user) {
   //If invalid, return 404 - Bad request
   const schema = Joi.object({
+    user_image: Joi.object(),
     user_name: Joi.string().alphanum().min(4).required(),
     user_email: Joi.string().email(),
-    password: Joi.string().min(4).required(),
+    user_password: Joi.string().min(4).required(),
     total_orders: Joi.number().integer().required(),
   });
   const result = schema.validate(user);
   return result;
 }
-module.exports = { addUser, getUser, updateUser, deleteUser, upload, getImage };
+module.exports = {
+  addUser,
+  getUser,
+  updateUser,
+  deleteUser,
+  upload,
+  getImage,
+  getAllUser,
+};

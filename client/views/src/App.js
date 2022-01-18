@@ -2,14 +2,17 @@ import "./App.css";
 import Form from "./form";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import FormData from "./data";
+import Home from "./Home";
+import Nav from "./NavBar";
 
 function App() {
   return (
-    <div className="App" id="main">
+    <div className="App">
       <Router>
         <Routes>
-          <Route path="/formdata" element={<FormData />} />
-          <Route exact path="/" element={<Form />} />
+          <Route exact path="/data" element={<FormData />} />
+          <Route exact path="/form" element={<Form />} />
+          <Route exact path="/" element={<Home />} />
         </Routes>
       </Router>
     </div>
